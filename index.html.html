@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Power Factor Correction Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .result-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            color: white;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .calc-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        .calc-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            margin: 10px 0;
+        }
+        .info-box {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            margin: 10px 0;
+        }
+        .success-box {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            margin: 10px 0;
+        }
+        .country-preset {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .country-preset:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        .country-preset.selected {
+            background: rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+        @media print {
+            body {
+                background: white !important;
+            }
+            .glass-effect {
+                background: white !important;
+                backdrop-filter: none !important;
+                border: 1px solid #ccc !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-4">
+                <i class="fas fa-bolt text-yellow-400"></i>
+                Universal Power Factor Correction Calculator
+            </h1>
+            <p class="text-xl text-gray-200">Professional Tool for Global Power Systems</p>
+            <p class="text-sm text-gray-300 mt-2">Customizable for Any Country - Based on IEC 60831-1/2 & IEEE Std 1036-2010</p>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+            <!-- Country/Region Settings -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h2 class="text-xl font-bold text-white mb-4">
+                    <i class="fas fa-globe text-green-400"></i>
+                    Country/Region Settings
+                </h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-flag text-blue-400"></i>
+                            Quick Presets
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="country-preset" onclick="loadCountryPreset('uae')">
+                                <div class="text-white text-sm font-semibold">🇦🇪 UAE</div>
+                                <div class="text-gray-300 text-xs">$10/kVA</div>
+                            </div>
+                            <div class="country-preset" onclick="loadCountryPreset('saudi')">
+                                <div class="text-white text-sm font-semibold">🇸🇦 Saudi</div>
+                                <div class="text-gray-300 text-xs">$8/kVA</div>
+                            </div>
+                            <div class="country-preset" onclick="loadCountryPreset('egypt')">
+                                <div class="text-white text-sm font-semibold">🇪🇬 Egypt</div>
+                                <div class="text-gray-300 text-xs">$3/kVA</div>
+                            </div>
+                            <div class="country-preset" onclick="loadCountryPreset('usa')">
+                                <div class="text-white text-sm font-semibold">🇺🇸 USA</div>
+                                <div class="text-gray-300 text-xs">$15/kVA</div>
+                            </div>
+                            <div class="country-preset" onclick="loadCountryPreset('germany')">
+                                <div class="text-white text-sm font-semibold">🇩🇪 Germany</div>
+                                <div class="text-gray-300 text-xs">$25/kVA</div>
+                            </div>
+                            <div class="country-preset" onclick="loadCountryPreset('custom')">
+                                <div class="text-white text-sm font-semibold">⚙️ Custom</div>
+                                <div class="text-gray-300 text-xs">Manual</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-dollar-sign text-yellow-400"></i>
+                            Demand Charge ($/kVA/month)
+                        </label>
+                        <input type="number" id="demandCharge" class="input-field w-full p-3 rounded-lg bg-white/90 border-0 focus:ring-4 focus:ring-blue-400 outline-none" placeholder="Enter demand charge" min="0" step="0.1">
+                    </div>
+
+                    <div>
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-thermometer-half text-red-400"></i>
+                            Temperature Derating Factor
+                        </label>
+                        <input type="number" id="deratingFactor" class="input-field w-full p-3 rounded-lg bg-white/90 border-0 focus:ring-4 focus:ring-blue-400 outline-none" placeholder="1.0 = no derating" min="1" max="2" step="0.01" value="1.0">
+                        <p class="text-xs text-gray-300 mt-1">1.0 = Normal, 1.15 = Hot climate, 1.3 = Very hot</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-coins text-orange-400"></i>
+                            Energy Cost ($/kWh)
+                        </label>
+                        <input type="number" id="energyCost" class="input-field w-full p-3 rounded-lg bg-white/90 border-0 focus:ring-4 focus:ring-blue-400 outline-none" placeholder="Enter energy cost" min="0" step="0.001">
+                    </div>
+
+                    <div>
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-plug text-purple-400"></i>
+                            System Voltage (kV)
+                        </label>
+                        <select id="voltage" class="input-field w-full p-3 rounded-lg bg-white/90 border-0 focus:ring-4 focus:ring-blue-400 outline-none">
+                            <option value="0.4">0.4 kV (Low Voltage)</option>
+                            <option value="0.48">0.48 kV (North America LV)</option>
+                            <option value="6.6">6.6 kV (Medium Voltage)</option>
+                            <option value="11">11 kV (MV Distribution)</option>
+                            <option value="13.8">13.8 kV (North America MV)</option>
+                            <option value="22">22 kV (European MV)</option>
+                            <option value="33">33 kV (MV Transmission)</option>
+                            <option value="69">69 kV (Sub-transmission)</option>
+                            <option value="132">132 kV (HV Transmission)</option>
+                            <option value="custom">Custom Voltage</option>
+                        </select>
+                    </div>
+
+                    <div id="customVoltageDiv" style="display: none;">
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-edit text-cyan-400"></i>
+                            Custom Voltage (kV)
+                        </label>
+                        <input type="number" id="customVoltage" class="input-field w-full p-3 rounded-lg bg-white/90 border-0 focus:ring-4 focus:ring-blue-400 outline-none" placeholder="Enter custom voltage" min="0.1" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Parameters -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h2 class="text-xl font-bold text-white mb-4">
+                    <i class="fas fa-calculator text-blue-400"></i>
+                    System Parameters
+                </h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-plug text-green-400"></i>
+                            Load Active Power (kW)
+                        </label>
+                        <input type="number" id="activePower" class="input-field w-full p-3 rounded-lg bg-white/90 border-0 focus:ring-4 focus:ring-blue-400 outline-none" placeholder="Enter active power (e.g., 500)" min="0" step="0.1">
+                    </div>
+
+                    <div>
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-wave-square text-orange-400"></i>
+                            Present Power Factor
+                        </label>
+                        <input type="number" id="presentPF" class="input-field w-full p-3 rounded-lg bg-white/90 border-0 focus:ring-4 focus:ring-blue-400 outline-none" placeholder="Enter current PF (e.g., 0.75)" min="0.1" max="1" step="0.01">
+                    </div>
+
+                    <div>
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-bullseye text-purple-400"></i>
+                            Target Power Factor
+                        </label>
+                        <input type="number" id="targetPF" class="input-field w-full p-3 rounded-lg bg-white/90 border-0 focus:ring-4 focus:ring-blue-400 outline-none" placeholder="Enter target PF (e.g., 0.95)" min="0.1" max="1" step="0.01">
+                    </div>
+
+                    <div>
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-cogs text-red-400"></i>
+                            Capacitor Bank Type
+                        </label>
+                        <select id="systemType" class="input-field w-full p-3 rounded-lg bg-white/90 border-0 focus:ring-4 focus:ring-blue-400 outline-none">
+                            <option value="fixed">Fixed Capacitor Bank</option>
+                            <option value="automatic">Automatic Capacitor Bank</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-white font-semibold mb-2">
+                            <i class="fas fa-clock text-indigo-400"></i>
+                            Operating Hours per Year
+                        </label>
+                        <input type="number" id="operatingHours" class="input-field w-full p-3 rounded-lg bg-white/90 border-0 focus:ring-4 focus:ring-blue-400 outline-none" placeholder="8760 for continuous" min="1" max="8760" step="1" value="8760">
+                    </div>
+
+                    <button onclick="calculatePFC()" class="calc-button w-full py-4 px-6 rounded-xl text-white font-bold text-lg">
+                        <i class="fas fa-calculator mr-2"></i>
+                        Calculate Power Factor Correction
+                    </button>
+
+                    <button onclick="resetForm()" class="w-full py-3 px-6 rounded-xl text-white font-semibold bg-gray-600 hover:bg-gray-700 transition-all">
+                        <i class="fas fa-redo mr-2"></i>
+                        Reset Form
+                    </button>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="glass-effect rounded-2xl p-6 mt-8 xl:mt-0" id="chartsSection" style="display: none;">
+                <h2 class="text-xl font-bold text-white mb-4">
+                    <i class="fas fa-chart-bar text-purple-400"></i>
+                    Visual Analysis
+                </h2>
+                
+                <div class="space-y-6">
+                    <!-- Power Factor Comparison Chart -->
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-white mb-3">Power Factor Comparison</h3>
+                        <canvas id="powerFactorChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <!-- Financial Benefits Chart -->
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-white mb-3">Financial Benefits</h3>
+                        <canvas id="financialChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <!-- Export Buttons -->
+                    <div class="space-y-2">
+                        <button onclick="generatePDFReport()" class="w-full py-3 px-6 rounded-xl text-white font-semibold bg-red-600 hover:bg-red-700 transition-all">
+                            <i class="fas fa-file-pdf mr-2"></i>
+                            Export PDF Report
+                        </button>
+                        <button onclick="printReport()" class="w-full py-3 px-6 rounded-xl text-white font-semibold bg-blue-600 hover:bg-blue-700 transition-all">
+                            <i class="fas fa-print mr-2"></i>
+                            Print Report
+                        </button>
+                        <button onclick="saveCalculation()" class="w-full py-3 px-6 rounded-xl text-white font-semibold bg-green-600 hover:bg-green-700 transition-all">
+                            <i class="fas fa-save mr-2"></i>
+                            Save Calculation
+                        </button>
+                        <button onclick="showSavedCalculations()" class="w-full py-3 px-6 rounded-xl text-white font-semibold bg-purple-600 hover:bg-purple-700 transition-all">
+                            <i class="fas fa-history mr-2"></i>
+                            View Saved
+                        </button>
+                        <button onclick="showComparison()" class="w-full py-3 px-6 rounded-xl text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition-all">
+                            <i class="fas fa-balance-scale mr-2"></i>
+                            Compare Scenarios
+                        </button>
+                        <button onclick="showDetailedCostAnalysis()" class="w-full py-3 px-6 rounded-xl text-white font-semibold bg-yellow-600 hover:bg-yellow-700 transition-all">
+                            <i class="fas fa-calculator mr-2"></i>
+                            Detailed Cost Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h2 class="text-xl font-bold text-white mb-4">
+                    <i class="fas fa-chart-line text-green-400"></i>
+                    Calculation Results
+                </h2>
+                
+                <div id="results" class="space-y-4">
+                    <div class="info-box text-center">
+                        <i class="fas fa-info-circle text-2xl mb-2"></i>
+                        <p>Configure your country settings and system parameters, then click calculate to see results</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formula Section -->
+        <div class="glass-effect rounded-2xl p-8 mt-8">
+            <h2 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-square-root-alt text-purple-400"></i>
+                Technical Formulas & Standards
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white/10 rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">Primary Calculation</h3>
+                    <div class="text-white space-y-2">
+                        <p class="font-mono text-lg bg-gray-800 p-3 rounded">Q<sub>c</sub> = P × (tan φ₁ - tan φ₂)</p>
+                        <p class="text-sm">Where:</p>
+                        <ul class="text-sm space-y-1 ml-4">
+                            <li>Q<sub>c</sub> = Required reactive power (kVAR)</li>
+                            <li>P = Active power (kW)</li>
+                            <li>φ₁ = arccos(present power factor)</li>
+                            <li>φ₂ = arccos(target power factor)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white/10 rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">Financial Calculation</h3>
+                    <div class="text-white space-y-2">
+                        <p class="font-mono text-sm bg-gray-800 p-3 rounded">Savings = (S₁ - S₂) × Demand Charge</p>
+                        <p class="text-sm">Where:</p>
+                        <ul class="text-sm space-y-1 ml-4">
+                            <li>S₁ = P / PF₁ (Present apparent power)</li>
+                            <li>S₂ = P / PF₂ (Target apparent power)</li>
+                            <li>Demand Charge = $/kVA/month</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white/10 rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">Automatic Bank Sizing</h3>
+                    <div class="text-white space-y-2">
+                        <p class="text-sm">Standard Step Sizes (kVAR):</p>
+                        <ul class="text-sm space-y-1 ml-4">
+                            <li>• Small: 5, 10, 15, 25, 50</li>
+                            <li>• Medium: 50, 100, 150, 200</li>
+                            <li>• Large: 200, 300, 400, 500</li>
+                        </ul>
+                        <p class="text-sm mt-2">Ratio typically 1:2:4 or 1:1:2:4</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Country Examples -->
+        <div class="glass-effect rounded-2xl p-8 mt-8">
+            <h2 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-globe-americas text-blue-400"></i>
+                Global Examples & Typical Costs
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white/10 rounded-lg p-4">
+                    <h3 class="font-bold text-white mb-2">🇦🇪 UAE / Gulf Region</h3>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Demand: $8-12/kVA/month</li>
+                        <li>• Energy: $0.05-0.08/kWh</li>
+                        <li>• Derating: 1.15 (hot climate)</li>
+                        <li>• Common: 11kV, 33kV systems</li>
+                    </ul>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4">
+                    <h3 class="font-bold text-white mb-2">🇺🇸 United States</h3>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Demand: $10-20/kVA/month</li>
+                        <li>• Energy: $0.08-0.15/kWh</li>
+                        <li>• Derating: 1.0-1.1</li>
+                        <li>• Common: 480V, 13.8kV systems</li>
+                    </ul>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4">
+                    <h3 class="font-bold text-white mb-2">🇩🇪 Germany / Europe</h3>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Demand: $20-30/kVA/month</li>
+                        <li>• Energy: $0.25-0.35/kWh</li>
+                        <li>• Derating: 1.0</li>
+                        <li>• Common: 400V, 20kV systems</li>
+                    </ul>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4">
+                    <h3 class="font-bold text-white mb-2">🇪🇬 Egypt / Africa</h3>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Demand: $2-5/kVA/month</li>
+                        <li>• Energy: $0.02-0.05/kWh</li>
+                        <li>• Derating: 1.1-1.2</li>
+                        <li>• Common: 380V, 11kV systems</li>
+                    </ul>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4">
+                    <h3 class="font-bold text-white mb-2">🇨🇳 China / Asia</h3>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Demand: $5-12/kVA/month</li>
+                        <li>• Energy: $0.06-0.12/kWh</li>
+                        <li>• Derating: 1.0-1.15</li>
+                        <li>• Common: 380V, 10kV systems</li>
+                    </ul>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4">
+                    <h3 class="font-bold text-white mb-2">🇧🇷 Brazil / S.America</h3>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                        <li>• Demand: $8-15/kVA/month</li>
+                        <li>• Energy: $0.10-0.18/kWh</li>
+                        <li>• Derating: 1.1</li>
+                        <li>• Common: 380V, 13.8kV systems</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- References -->
+        <div class="glass-effect rounded-2xl p-8 mt-8">
+            <h2 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-book text-blue-400"></i>
+                Technical References & Standards
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white/10 rounded-lg p-4">
+                    <h3 class="font-bold text-white mb-2">IEC 60831-1/2</h3>
+                    <p class="text-gray-300 text-sm">Shunt power capacitors of the self-healing type for a.c. systems having a rated voltage up to and including 1000 V</p>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4">
+                    <h3 class="font-bold text-white mb-2">IEEE Std 1036-2010</h3>
+                    <p class="text-gray-300 text-sm">IEEE Guide for Application of Shunt Power Capacitors</p>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4">
+                    <h3 class="font-bold text-white mb-2">IEC 61921</h3>
+                    <p class="text-gray-300 text-sm">Power capacitors - Duty and testing of capacitor banks</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-white/70 text-sm">
+            <p>© 2024 Universal Power Factor Correction Calculator | Designed for Global Electrical Engineers</p>
+            <p class="mt-2">Always consult with certified electrical engineers and local authorities before implementation</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for charts
+        let powerFactorChart = null;
+        let financialChart = null;
+        let currentResults = null;
+
+        // Country presets with typical values
+        const countryPresets = {
+            uae: {
+                demandCharge: 10,
+                energyCost: 0.06,
+                deratingFactor: 1.15,
+                voltage: '11'
+            },
+            saudi: {
+                demandCharge: 8,
+                energyCost: 0.05,
+                deratingFactor: 1.15,
+                voltage: '11'
+            },
+            egypt: {
+                demandCharge: 3,
+                energyCost: 0.03,
+                deratingFactor: 1.1,
+                voltage: '11'
+            },
+            usa: {
+                demandCharge: 15,
+                energyCost: 0.12,
+                deratingFactor: 1.0,
+                voltage: '13.8'
+            },
+            germany: {
+                demandCharge: 25,
+                energyCost: 0.30,
+                deratingFactor: 1.0,
+                voltage: '22'
+            },
+            custom: {
+                demandCharge: '',
+                energyCost: '',
+                deratingFactor: 1.0,
+                voltage: '11'
+            }
+        };
+
+        function loadCountryPreset(country) {
+            // Remove selected class from all presets
+            document.querySelectorAll('.country-preset').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked preset
+            event.target.closest('.country-preset').classList.add('selected');
+            
+            const preset = countryPresets[country];
+            document.getElementById('demandCharge').value = preset.demandCharge;
+            document.getElementById('energyCost').value = preset.energyCost;
+            document.getElementById('deratingFactor').value = preset.deratingFactor;
+            document.getElementById('voltage').value = preset.voltage;
+        }
+
+        // Handle custom voltage selection
+        document.getElementById('voltage').addEventListener('change', function() {
+            const customDiv = document.getElementById('customVoltageDiv');
+            if (this.value === 'custom') {
+                customDiv.style.display = 'block';
+            } else {
+                customDiv.style.display = 'none';
+            }
+        });
+
+        function getVoltage() {
+            const voltageSelect = document.getElementById('voltage');
+            if (voltageSelect.value === 'custom') {
+                return parseFloat(document.getElementById('customVoltage').value);
+            }
+            return parseFloat(voltageSelect.value);
+        }
+
+        function calculatePFC() {
+            // Get inputs
+            const P = parseFloat(document.getElementById('activePower').value);
+            const pf1 = parseFloat(document.getElementById('presentPF').value);
+            const pf2 = parseFloat(document.getElementById('targetPF').value);
+            const systemType = document.getElementById('systemType').value;
+            const voltage = getVoltage();
+            const demandCharge = parseFloat(document.getElementById('demandCharge').value);
+            const energyCost = parseFloat(document.getElementById('energyCost').value);
+            const deratingFactor = parseFloat(document.getElementById('deratingFactor').value);
+            const operatingHours = parseFloat(document.getElementById('operatingHours').value);
+
+            // Validation
+            if (!P || !pf1 || !pf2 || !voltage || !demandCharge || !energyCost || !deratingFactor || !operatingHours) {
+                showError('Please fill in all required fields');
+                return;
+            }
+
+            if (pf1 <= 0 || pf1 > 1 || pf2 <= 0 || pf2 > 1) {
+                showError('Power factor values must be between 0.1 and 1.0');
+                return;
+            }
+
+            if (pf2 <= pf1) {
+                showError('Target power factor must be higher than present power factor');
+                return;
+            }
+
+            if (P <= 0) {
+                showError('Active power must be greater than 0');
+                return;
+            }
+
+            if (voltage <= 0) {
+                showError('Voltage must be greater than 0');
+                return;
+            }
+
+            if (deratingFactor < 1) {
+                showError('Derating factor must be 1.0 or higher');
+                return;
+            }
+
+            // Calculate angles
+            const phi1 = Math.acos(pf1);
+            const phi2 = Math.acos(pf2);
+
+            // Calculate required reactive power
+            const Qc = P * (Math.tan(phi1) - Math.tan(phi2));
+
+            // Apply derating factor
+            const QcDerated = Qc * deratingFactor;
+
+            // Calculate suggested bank size
+            let suggestedSize, steps;
+            if (systemType === 'fixed') {
+                suggestedSize = Math.ceil(QcDerated / 25) * 25; // Round up to nearest 25 kVAR
+                steps = null;
+            } else {
+                [suggestedSize, steps] = calculateAutomaticSteps(QcDerated);
+            }
+
+            // Calculate financial benefits
+            const benefits = calculateBenefits(P, pf1, pf2, demandCharge, energyCost, operatingHours);
+
+            // Calculate payback period (rough estimate)
+            const capacitorCost = estimateCapacitorCost(suggestedSize, voltage, systemType);
+            const paybackMonths = capacitorCost / benefits.monthlySavings;
+
+            // Store results globally for export
+            currentResults = {
+                P, pf1, pf2, Qc, QcDerated, suggestedSize, steps, systemType, voltage, 
+                benefits, capacitorCost, paybackMonths, deratingFactor, demandCharge, energyCost, operatingHours
+            };
+
+            // Display results
+            displayResults(P, pf1, pf2, Qc, QcDerated, suggestedSize, steps, systemType, voltage, benefits, capacitorCost, paybackMonths, deratingFactor);
+            
+            // Show charts section and create charts
+            document.getElementById('chartsSection').style.display = 'block';
+            createCharts(P, pf1, pf2, benefits, capacitorCost, paybackMonths);
+        }
+
+        function calculateAutomaticSteps(Qc) {
+            let steps = [];
+            let remaining = Qc;
+
+            // Standard step sizes for different ranges
+            let stepSizes;
+            if (Qc <= 300) {
+                stepSizes = [25, 50, 75, 100];
+            } else if (Qc <= 1000) {
+                stepSizes = [50, 100, 150, 200, 300];
+            } else {
+                stepSizes = [100, 200, 300, 400, 500];
+            }
+
+            // Use binary approach (1:2:4 ratio)
+            stepSizes.sort((a, b) => b - a); // Descending order
+
+            for (let size of stepSizes) {
+                while (remaining >= size && steps.length < 8) { // Max 8 steps
+                    steps.push(size);
+                    remaining -= size;
+                }
+            }
+
+            // Handle remainder
+            if (remaining > 10) {
+                steps.push(Math.ceil(remaining / 25) * 25);
+            }
+
+            const totalSize = steps.reduce((sum, step) => sum + step, 0);
+            return [totalSize, steps];
+        }
+
+        function calculateBenefits(P, pf1, pf2, demandCharge, energyCost, operatingHours) {
+            // Calculate apparent power before and after
+            const S1 = P / pf1;
+            const S2 = P / pf2;
+            
+            // Monthly demand savings
+            const demandReduction = S1 - S2;
+            const monthlySavings = demandReduction * demandCharge;
+            
+            // Energy loss reduction (approximate)
+            const lossReduction = (Math.pow(S1, 2) - Math.pow(S2, 2)) / Math.pow(S1, 2);
+            const energySavings = P * lossReduction * 0.02 * operatingHours * energyCost; // 2% loss assumption
+            
+            const annualSavings = monthlySavings * 12 + energySavings;
+            
+            return {
+                monthlySavings: monthlySavings,
+                annualSavings: annualSavings,
+                demandReduction: demandReduction,
+                energySavings: energySavings
+            };
+        }
+
+        function estimateCapacitorCost(kvar, voltage, systemType) {
+            // Rough cost estimation based on typical market prices
+            let baseCost = kvar * 15; // $15 per kVAR base cost
+            
+            // Voltage multiplier
+            if (voltage >= 33) baseCost *= 2.5;
+            else if (voltage >= 11) baseCost *= 1.8;
+            else if (voltage >= 6) baseCost *= 1.5;
+            
+            // System type multiplier
+            if (systemType === 'automatic') {
+                baseCost *= 2.5; // Automatic systems cost more
+            }
+            
+            // Installation and accessories (30% of equipment cost)
+            return baseCost * 1.3;
+        }
+
+        function displayResults(P, pf1, pf2, Qc, QcDerated, suggestedSize, steps, systemType, voltage, benefits, capacitorCost, paybackMonths, deratingFactor) {
+            const resultsDiv = document.getElementById('results');
+            
+            let stepsHtml = '';
+            if (steps) {
+                const stepCounts = {};
+                steps.forEach(step => {
+                    stepCounts[step] = (stepCounts[step] || 0) + 1;
+                });
+                
+                stepsHtml = Object.entries(stepCounts)
+                    .map(([size, count]) => `${count} × ${size} kVAR`)
+                    .join(' + ');
+            }
+
+            resultsDiv.innerHTML = `
+                <div class="result-box">
+                    <h3 class="text-xl font-bold mb-3">
+                        <i class="fas fa-bolt"></i>
+                        Required Reactive Power
+                    </h3>
+                    <p class="text-2xl font-bold">${Qc.toFixed(1)} kVAR</p>
+                    <p class="text-sm mt-2">With derating factor (${deratingFactor}): ${QcDerated.toFixed(1)} kVAR</p>
+                </div>
+
+                <div class="result-box">
+                    <h3 class="text-xl font-bold mb-3">
+                        <i class="fas fa-cogs"></i>
+                        Suggested Capacitor Bank
+                    </h3>
+                    <p class="text-2xl font-bold">${suggestedSize} kVAR</p>
+                    <p class="text-sm mt-2">System Type: ${systemType.charAt(0).toUpperCase() + systemType.slice(1)}</p>
+                    ${steps ? `<p class="text-sm mt-1">Configuration: ${stepsHtml}</p>` : ''}
+                    <p class="text-sm mt-1">System Voltage: ${voltage} kV</p>
+                </div>
+
+                <div class="success-box">
+                    <h3 class="text-xl font-bold mb-3">
+                        <i class="fas fa-dollar-sign"></i>
+                        Financial Analysis
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="font-semibold">Monthly Savings:</p>
+                            <p class="text-lg">$${benefits.monthlySavings.toFixed(0)}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Annual Savings:</p>
+                            <p class="text-lg">$${benefits.annualSavings.toFixed(0)}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Estimated Cost:</p>
+                            <p class="text-lg">$${capacitorCost.toFixed(0)}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Payback Period:</p>
+                            <p class="text-lg">${paybackMonths.toFixed(1)} months</p>
+                        </div>
+                    </div>
+                    <p class="text-xs mt-2">Demand Reduction: ${benefits.demandReduction.toFixed(1)} kVA | Energy Savings: $${benefits.energySavings.toFixed(0)}/year</p>
+                </div>
+
+                <div class="info-box">
+                    <h3 class="text-lg font-bold mb-2">
+                        <i class="fas fa-info-circle"></i>
+                        Technical Summary
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p><strong>Present φ₁:</strong> ${(Math.acos(pf1) * 180 / Math.PI).toFixed(1)}°</p>
+                            <p><strong>Target φ₂:</strong> ${(Math.acos(pf2) * 180 / Math.PI).toFixed(1)}°</p>
+                            <p><strong>Present S₁:</strong> ${(P/pf1).toFixed(1)} kVA</p>
+                        </div>
+                        <div>
+                            <p><strong>Target S₂:</strong> ${(P/pf2).toFixed(1)} kVA</p>
+                            <p><strong>Derating Factor:</strong> ${deratingFactor}</p>
+                            <p><strong>ROI:</strong> ${(1200/paybackMonths).toFixed(0)}% annually</p>
+                        </div>
+                    </div>
+                </div>
+
+                ${systemType === 'automatic' ? `
+                <div class="warning-box">
+                    <h3 class="text-lg font-bold mb-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Automatic Bank Recommendations
+                    </h3>
+                    <ul class="text-sm space-y-1">
+                        <li>• Install power factor controller with 1% accuracy</li>
+                        <li>• Consider harmonic analysis for VFD loads</li>
+                        <li>• Use contactors rated for capacitive switching</li>
+                        <li>• Install detuned reactors if THD > 5%</li>
+                        <li>• Ensure adequate ventilation for local climate</li>
+                        <li>• Program controller for optimal switching sequence</li>
+                    </ul>
+                </div>
+                ` : `
+                <div class="warning-box">
+                    <h3 class="text-lg font-bold mb-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Fixed Bank Recommendations
+                    </h3>
+                    <ul class="text-sm space-y-1">
+                        <li>• Install disconnect switch and protection</li>
+                        <li>• Consider load variation throughout the day</li>
+                        <li>• Monitor for leading power factor during light loads</li>
+                        <li>• Use temperature-rated capacitors for local climate</li>
+                        <li>• Install surge protection devices</li>
+                    </ul>
+                </div>
+                `}
+            `;
+        }
+
+        function showError(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="warning-box text-center">
+                    <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        function resetForm() {
+            // Reset all form fields
+            document.getElementById('activePower').value = '';
+            document.getElementById('presentPF').value = '';
+            document.getElementById('targetPF').value = '';
+            document.getElementById('demandCharge').value = '';
+            document.getElementById('energyCost').value = '';
+            document.getElementById('deratingFactor').value = '1.0';
+            document.getElementById('operatingHours').value = '8760';
+            document.getElementById('voltage').value = '0.4';
+            document.getElementById('systemType').value = 'fixed';
+            document.getElementById('customVoltage').value = '';
+            document.getElementById('customVoltageDiv').style.display = 'none';
+            
+            // Remove selected class from country presets
+            document.querySelectorAll('.country-preset').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Reset results
+            document.getElementById('results').innerHTML = `
+                <div class="info-box text-center">
+                    <i class="fas fa-info-circle text-2xl mb-2"></i>
+                    <p>Configure your country settings and system parameters, then click calculate to see results</p>
+                </div>
+            `;
+        }
+
+        function createCharts(P, pf1, pf2, benefits, capacitorCost, paybackMonths) {
+            // Destroy existing charts
+            if (powerFactorChart) powerFactorChart.destroy();
+            if (financialChart) financialChart.destroy();
+
+            // Power Factor Comparison Chart
+            const pfCtx = document.getElementById('powerFactorChart').getContext('2d');
+            powerFactorChart = new Chart(pfCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Present System', 'After Correction'],
+                    datasets: [{
+                        label: 'Power Factor',
+                        data: [pf1, pf2],
+                        backgroundColor: ['#ff6b6b', '#4ecdc4'],
+                        borderColor: ['#ff5252', '#26a69a'],
+                        borderWidth: 2
+                    }, {
+                        label: 'Apparent Power (kVA)',
+                        data: [P/pf1, P/pf2],
+                        backgroundColor: ['#ffa726', '#66bb6a'],
+                        borderColor: ['#ff9800', '#4caf50'],
+                        borderWidth: 2,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'white' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            max: 1,
+                            ticks: { color: 'white' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { color: 'white' },
+                            grid: { drawOnChartArea: false, color: 'rgba(255,255,255,0.1)' }
+                        },
+                        x: {
+                            ticks: { color: 'white' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Financial Benefits Chart
+            const finCtx = document.getElementById('financialChart').getContext('2d');
+            financialChart = new Chart(finCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Investment Cost', 'Annual Savings', 'Net Benefit (5 years)'],
+                    datasets: [{
+                        data: [
+                            capacitorCost,
+                            benefits.annualSavings,
+                            benefits.annualSavings * 5 - capacitorCost
+                        ],
+                        backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1'],
+                        borderColor: ['#ff5252', '#26a69a', '#2196f3'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'white' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generatePDFReport() {
+            if (!currentResults) {
+                alert('Please calculate results first!');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.setTextColor(40, 40, 40);
+            doc.text('Power Factor Correction Report', 20, 30);
+            
+            // Add date
+            doc.setFontSize(12);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 40);
+            
+            // System Parameters
+            doc.setFontSize(16);
+            doc.text('System Parameters:', 20, 60);
+            doc.setFontSize(12);
+            doc.text(`Active Power: ${currentResults.P} kW`, 25, 70);
+            doc.text(`Present Power Factor: ${currentResults.pf1}`, 25, 80);
+            doc.text(`Target Power Factor: ${currentResults.pf2}`, 25, 90);
+            doc.text(`System Voltage: ${currentResults.voltage} kV`, 25, 100);
+            doc.text(`System Type: ${currentResults.systemType}`, 25, 110);
+            
+            // Results
+            doc.setFontSize(16);
+            doc.text('Calculation Results:', 20, 130);
+            doc.setFontSize(12);
+            doc.text(`Required Reactive Power: ${currentResults.Qc.toFixed(1)} kVAR`, 25, 140);
+            doc.text(`With Derating: ${currentResults.QcDerated.toFixed(1)} kVAR`, 25, 150);
+            doc.text(`Suggested Bank Size: ${currentResults.suggestedSize} kVAR`, 25, 160);
+            
+            // Financial Analysis
+            doc.setFontSize(16);
+            doc.text('Financial Analysis:', 20, 180);
+            doc.setFontSize(12);
+            doc.text(`Monthly Savings: $${currentResults.benefits.monthlySavings.toFixed(0)}`, 25, 190);
+            doc.text(`Annual Savings: $${currentResults.benefits.annualSavings.toFixed(0)}`, 25, 200);
+            doc.text(`Estimated Cost: $${currentResults.capacitorCost.toFixed(0)}`, 25, 210);
+            doc.text(`Payback Period: ${currentResults.paybackMonths.toFixed(1)} months`, 25, 220);
+            doc.text(`ROI: ${(1200/currentResults.paybackMonths).toFixed(0)}% annually`, 25, 230);
+            
+            // Add recommendations
+            doc.setFontSize(16);
+            doc.text('Recommendations:', 20, 250);
+            doc.setFontSize(10);
+            const recommendations = [
+                '• Install power factor controller with 1% accuracy',
+                '• Consider harmonic analysis for VFD loads',
+                '• Use contactors rated for capacitive switching',
+                '• Install surge protection devices',
+                '• Ensure adequate ventilation for local climate',
+                '• Regular maintenance and monitoring required'
+            ];
+            
+            recommendations.forEach((rec, index) => {
+                doc.text(rec, 25, 260 + (index * 8));
+            });
+            
+            // Save the PDF
+            doc.save(`Power_Factor_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        function printReport() {
+            if (!currentResults) {
+                alert('Please calculate results first!');
+                return;
+            }
+            
+            // Create a new window with printable content
+            const printWindow = window.open('', '_blank');
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Power Factor Correction Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .section { margin-bottom: 20px; }
+                        .section h3 { color: #333; border-bottom: 2px solid #333; }
+                        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+                        .result-item { margin: 5px 0; }
+                        @media print { body { margin: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Power Factor Correction Report</h1>
+                        <p>Generated: ${new Date().toLocaleDateString()}</p>
+                    </div>
+                    
+                    <div class="grid">
+                        <div class="section">
+                            <h3>System Parameters</h3>
+                            <div class="result-item">Active Power: ${currentResults.P} kW</div>
+                            <div class="result-item">Present Power Factor: ${currentResults.pf1}</div>
+                            <div class="result-item">Target Power Factor: ${currentResults.pf2}</div>
+                            <div class="result-item">System Voltage: ${currentResults.voltage} kV</div>
+                            <div class="result-item">System Type: ${currentResults.systemType}</div>
+                        </div>
+                        
+                        <div class="section">
+                            <h3>Calculation Results</h3>
+                            <div class="result-item">Required Reactive Power: ${currentResults.Qc.toFixed(1)} kVAR</div>
+                            <div class="result-item">With Derating: ${currentResults.QcDerated.toFixed(1)} kVAR</div>
+                            <div class="result-item">Suggested Bank Size: ${currentResults.suggestedSize} kVAR</div>
+                            <div class="result-item">Demand Reduction: ${currentResults.benefits.demandReduction.toFixed(1)} kVA</div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h3>Financial Analysis</h3>
+                        <div class="grid">
+                            <div>
+                                <div class="result-item">Monthly Savings: $${currentResults.benefits.monthlySavings.toFixed(0)}</div>
+                                <div class="result-item">Annual Savings: $${currentResults.benefits.annualSavings.toFixed(0)}</div>
+                            </div>
+                            <div>
+                                <div class="result-item">Estimated Cost: $${currentResults.capacitorCost.toFixed(0)}</div>
+                                <div class="result-item">Payback Period: ${currentResults.paybackMonths.toFixed(1)} months</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h3>Technical Summary</h3>
+                        <div class="result-item">Present Angle: ${(Math.acos(currentResults.pf1) * 180 / Math.PI).toFixed(1)}°</div>
+                        <div class="result-item">Target Angle: ${(Math.acos(currentResults.pf2) * 180 / Math.PI).toFixed(1)}°</div>
+                        <div class="result-item">Present Apparent Power: ${(currentResults.P/currentResults.pf1).toFixed(1)} kVA</div>
+                        <div class="result-item">Target Apparent Power: ${(currentResults.P/currentResults.pf2).toFixed(1)} kVA</div>
+                        <div class="result-item">ROI: ${(1200/currentResults.paybackMonths).toFixed(0)}% annually</div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        function saveCalculation() {
+            if (!currentResults) {
+                alert('Please calculate results first!');
+                return;
+            }
+            
+            const calculationName = prompt('Enter a name for this calculation:', `Calculation_${new Date().toLocaleDateString()}`);
+            if (!calculationName) return;
+            
+            const savedCalculations = JSON.parse(localStorage.getItem('powerFactorCalculations') || '[]');
+            const newCalculation = {
+                id: Date.now(),
+                name: calculationName,
+                date: new Date().toISOString(),
+                results: currentResults
+            };
+            
+            savedCalculations.push(newCalculation);
+            localStorage.setItem('powerFactorCalculations', JSON.stringify(savedCalculations));
+            
+            alert('Calculation saved successfully!');
+        }
+
+        function showSavedCalculations() {
+            const savedCalculations = JSON.parse(localStorage.getItem('powerFactorCalculations') || '[]');
+            
+            if (savedCalculations.length === 0) {
+                alert('No saved calculations found!');
+                return;
+            }
+            
+            let html = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="closeSavedCalculations()">
+                    <div class="bg-white rounded-lg p-6 max-w-4xl max-h-96 overflow-y-auto" onclick="event.stopPropagation()">
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">Saved Calculations</h3>
+                        <div class="space-y-3">
+            `;
+            
+            savedCalculations.reverse().forEach(calc => {
+                const date = new Date(calc.date).toLocaleDateString();
+                html += `
+                    <div class="border rounded p-3 bg-gray-50">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">${calc.name}</h4>
+                                <p class="text-sm text-gray-600">Date: ${date}</p>
+                                <p class="text-sm text-gray-600">Power: ${calc.results.P}kW, PF: ${calc.results.pf1}→${calc.results.pf2}</p>
+                            </div>
+                            <div class="space-x-2">
+                                <button onclick="loadCalculation(${calc.id})" class="px-3 py-1 bg-blue-500 text-white rounded text-sm">Load</button>
+                                <button onclick="deleteCalculation(${calc.id})" class="px-3 py-1 bg-red-500 text-white rounded text-sm">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick="closeSavedCalculations()" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function loadCalculation(id) {
+            const savedCalculations = JSON.parse(localStorage.getItem('powerFactorCalculations') || '[]');
+            const calculation = savedCalculations.find(calc => calc.id === id);
+            
+            if (!calculation) {
+                alert('Calculation not found!');
+                return;
+            }
+            
+            const results = calculation.results;
+            
+            // Load form values
+            document.getElementById('activePower').value = results.P;
+            document.getElementById('presentPF').value = results.pf1;
+            document.getElementById('targetPF').value = results.pf2;
+            document.getElementById('demandCharge').value = results.demandCharge;
+            document.getElementById('energyCost').value = results.energyCost;
+            document.getElementById('deratingFactor').value = results.deratingFactor;
+            document.getElementById('operatingHours').value = results.operatingHours;
+            document.getElementById('voltage').value = results.voltage;
+            document.getElementById('systemType').value = results.systemType;
+            
+            closeSavedCalculations();
+            
+            // Recalculate to show results
+            calculatePFC();
+        }
+
+        function deleteCalculation(id) {
+            if (!confirm('Are you sure you want to delete this calculation?')) return;
+            
+            let savedCalculations = JSON.parse(localStorage.getItem('powerFactorCalculations') || '[]');
+            savedCalculations = savedCalculations.filter(calc => calc.id !== id);
+            localStorage.setItem('powerFactorCalculations', JSON.stringify(savedCalculations));
+            
+            closeSavedCalculations();
+            showSavedCalculations();
+        }
+
+        function closeSavedCalculations() {
+            const modal = document.querySelector('.fixed.inset-0');
+            if (modal) modal.remove();
+        }
+
+        function showComparison() {
+            const savedCalculations = JSON.parse(localStorage.getItem('powerFactorCalculations') || '[]');
+            
+            if (savedCalculations.length < 2) {
+                alert('You need at least 2 saved calculations to compare!');
+                return;
+            }
+            
+            let html = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="closeComparison()">
+                    <div class="bg-white rounded-lg p-6 max-w-6xl max-h-96 overflow-y-auto" onclick="event.stopPropagation()">
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">Compare Calculations</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            `;
+            
+            savedCalculations.slice(-6).forEach(calc => {
+                const date = new Date(calc.date).toLocaleDateString();
+                const roi = (1200/calc.results.paybackMonths).toFixed(0);
+                html += `
+                    <div class="border rounded p-4 bg-gray-50">
+                        <h4 class="font-semibold text-gray-800 mb-2">${calc.name}</h4>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <p><strong>Date:</strong> ${date}</p>
+                            <p><strong>Power:</strong> ${calc.results.P} kW</p>
+                            <p><strong>PF:</strong> ${calc.results.pf1} → ${calc.results.pf2}</p>
+                            <p><strong>Required:</strong> ${calc.results.Qc.toFixed(1)} kVAR</p>
+                            <p><strong>Bank Size:</strong> ${calc.results.suggestedSize} kVAR</p>
+                            <p><strong>Monthly Savings:</strong> $${calc.results.benefits.monthlySavings.toFixed(0)}</p>
+                            <p><strong>Annual Savings:</strong> $${calc.results.benefits.annualSavings.toFixed(0)}</p>
+                            <p><strong>Cost:</strong> $${calc.results.capacitorCost.toFixed(0)}</p>
+                            <p><strong>Payback:</strong> ${calc.results.paybackMonths.toFixed(1)} months</p>
+                            <p><strong>ROI:</strong> ${roi}%</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <button onclick="closeComparison()" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function closeComparison() {
+            const modal = document.querySelector('.fixed.inset-0');
+            if (modal) modal.remove();
+        }
+
+        function showDetailedCostAnalysis() {
+            if (!currentResults) {
+                alert('Please calculate results first!');
+                return;
+            }
+            
+            const results = currentResults;
+            
+            // Detailed cost breakdown
+            const capacitorCost = results.suggestedSize * 15; // Base cost per kVAR
+            const voltageFactor = results.voltage >= 33 ? 2.5 : results.voltage >= 11 ? 1.8 : results.voltage >= 6 ? 1.5 : 1;
+            const systemFactor = results.systemType === 'automatic' ? 2.5 : 1;
+            
+            const equipmentCost = capacitorCost * voltageFactor * systemFactor;
+            const installationCost = equipmentCost * 0.3;
+            const protectionCost = equipmentCost * 0.15;
+            const commissioning = equipmentCost * 0.1;
+            const totalProjectCost = equipmentCost + installationCost + protectionCost + commissioning;
+            
+            // 10-year analysis
+            const yearlyBenefits = [];
+            for (let year = 1; year <= 10; year++) {
+                const inflationFactor = Math.pow(1.03, year - 1); // 3% annual inflation
+                yearlyBenefits.push(results.benefits.annualSavings * inflationFactor);
+            }
+            
+            const totalSavings10Years = yearlyBenefits.reduce((sum, benefit) => sum + benefit, 0);
+            const netBenefit10Years = totalSavings10Years - totalProjectCost;
+            const irr = ((totalSavings10Years / totalProjectCost) ** (1/10) - 1) * 100;
+            
+            let html = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="closeCostAnalysis()">
+                    <div class="bg-white rounded-lg p-6 max-w-5xl max-h-96 overflow-y-auto" onclick="event.stopPropagation()">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">Detailed Cost Analysis</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-lg font-semibold mb-3 text-gray-700">Project Cost Breakdown</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span>Capacitor Equipment:</span>
+                                        <span class="font-semibold">$${equipmentCost.toFixed(0)}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Installation & Labor:</span>
+                                        <span class="font-semibold">$${installationCost.toFixed(0)}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Protection & Control:</span>
+                                        <span class="font-semibold">$${protectionCost.toFixed(0)}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Commissioning & Testing:</span>
+                                        <span class="font-semibold">$${commissioning.toFixed(0)}</span>
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="flex justify-between text-lg font-bold">
+                                        <span>Total Project Cost:</span>
+                                        <span class="text-red-600">$${totalProjectCost.toFixed(0)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-semibold mb-3 text-gray-700">10-Year Financial Analysis</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span>Total Savings (10 years):</span>
+                                        <span class="font-semibold text-green-600">$${totalSavings10Years.toFixed(0)}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Net Benefit:</span>
+                                        <span class="font-semibold text-green-600">$${netBenefit10Years.toFixed(0)}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Internal Rate of Return:</span>
+                                        <span class="font-semibold">${irr.toFixed(1)}%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Payback Period:</span>
+                                        <span class="font-semibold">${results.paybackMonths.toFixed(1)} months</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>NPV (5% discount):</span>
+                                        <span class="font-semibold text-green-600">$${(netBenefit10Years * 0.7).toFixed(0)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h4 class="text-lg font-semibold mb-3 text-gray-700">Year-by-Year Savings (with 3% inflation)</h4>
+                            <div class="grid grid-cols-5 gap-2 text-xs">
+            `;
+            
+            yearlyBenefits.slice(0, 10).forEach((benefit, index) => {
+                html += `
+                    <div class="text-center p-2 bg-gray-100 rounded">
+                        <div class="font-semibold">Year ${index + 1}</div>
+                        <div class="text-green-600">$${benefit.toFixed(0)}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 p-4 bg-blue-50 rounded">
+                            <h4 class="font-semibold text-blue-800 mb-2">Investment Recommendation</h4>
+                            <p class="text-sm text-blue-700">
+                                ${irr > 15 ? 
+                                    '✅ <strong>Highly Recommended:</strong> Excellent ROI with IRR > 15%. This project will generate significant long-term savings.' :
+                                    irr > 10 ?
+                                    '✅ <strong>Recommended:</strong> Good ROI with IRR > 10%. Solid investment opportunity.' :
+                                    '⚠️ <strong>Consider Carefully:</strong> Moderate ROI. Evaluate other factors like power quality improvements.'
+                                }
+                            </p>
+                        </div>
+                        
+                        <button onclick="closeCostAnalysis()" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function closeCostAnalysis() {
+            const modal = document.querySelector('.fixed.inset-0');
+            if (modal) modal.remove();
+        }
+
+        function resetForm() {
+            // Reset all form fields
+            document.getElementById('activePower').value = '';
+            document.getElementById('presentPF').value = '';
+            document.getElementById('targetPF').value = '';
+            document.getElementById('demandCharge').value = '';
+            document.getElementById('energyCost').value = '';
+            document.getElementById('deratingFactor').value = '1.0';
+            document.getElementById('operatingHours').value = '8760';
+            document.getElementById('voltage').value = '0.4';
+            document.getElementById('systemType').value = 'fixed';
+            document.getElementById('customVoltage').value = '';
+            document.getElementById('customVoltageDiv').style.display = 'none';
+            
+            // Remove selected class from country presets
+            document.querySelectorAll('.country-preset').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Hide charts section
+            document.getElementById('chartsSection').style.display = 'none';
+            
+            // Destroy charts
+            if (powerFactorChart) {
+                powerFactorChart.destroy();
+                powerFactorChart = null;
+            }
+            if (financialChart) {
+                financialChart.destroy();
+                financialChart = null;
+            }
+            
+            // Clear results
+            currentResults = null;
+            document.getElementById('results').innerHTML = `
+                <div class="info-box text-center">
+                    <i class="fas fa-info-circle text-2xl mb-2"></i>
+                    <p>Configure your country settings and system parameters, then click calculate to see results</p>
+                </div>
+            `;
+        }
+
+        // Initialize with example values
+        window.onload = function() {
+            // Load UAE preset by default
+            loadCountryPreset('uae');
+            document.getElementById('activePower').value = '500';
+            document.getElementById('presentPF').value = '0.75';
+            document.getElementById('targetPF').value = '0.95';
+        };
+    </script>
+</body>
+</html>
