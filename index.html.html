@@ -102,6 +102,13 @@
             </h1>
             <p class="text-xl text-gray-200">Professional Tool for Global Power Systems</p>
             <p class="text-sm text-gray-300 mt-2">Customizable for Any Country - Based on IEC 60831-1/2 & IEEE Std 1036-2010</p>
+            <p class="text-sm text-white mt-3">
+                <i class="fas fa-code text-yellow-400"></i>
+                Designed by <strong class="text-white">YASSER ZAKARIA</strong> | 
+                <a href="https://www.linkedin.com/in/eng-yasser-zakaria/" target="_blank" class="text-white hover:text-yellow-300 transition-colors underline">
+                    <i class="fab fa-linkedin text-blue-400"></i> LinkedIn
+                </a>
+            </p>
         </div>
 
         <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
@@ -470,6 +477,14 @@
         <!-- Footer -->
         <div class="text-center mt-8 text-white/70 text-sm">
             <p>© 2024 Universal Power Factor Correction Calculator | Designed for Global Electrical Engineers</p>
+            <p class="mt-2">
+                <i class="fas fa-user-tie text-yellow-400"></i>
+                Designed by <strong class="text-white">YASSER ZAKARIA</strong> | 
+                <a href="https://www.linkedin.com/in/eng-yasser-zakaria/" target="_blank" class="text-white hover:text-yellow-300 transition-colors underline">
+                    <i class="fab fa-linkedin text-blue-400"></i>
+                    LinkedIn Profile
+                </a>
+            </p>
             <p class="mt-2">Always consult with certified electrical engineers and local authorities before implementation</p>
         </div>
     </div>
@@ -962,9 +977,12 @@
             doc.setTextColor(40, 40, 40);
             doc.text('Power Factor Correction Report', 20, 30);
             
-            // Add date
+            // Add date and designer
             doc.setFontSize(12);
             doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 40);
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Designed by: YASSER ZAKARIA | LinkedIn: linkedin.com/in/eng-yasser-zakaria/', 20, 50);
             
             // System Parameters
             doc.setFontSize(16);
@@ -1042,6 +1060,7 @@
                     <div class="header">
                         <h1>Power Factor Correction Report</h1>
                         <p>Generated: ${new Date().toLocaleDateString()}</p>
+                        <p style="font-size: 12px; color: #666;">Designed by: YASSER ZAKARIA | LinkedIn: linkedin.com/in/eng-yasser-zakaria/</p>
                     </div>
                     
                     <div class="grid">
