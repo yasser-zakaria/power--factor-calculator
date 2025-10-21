@@ -24,42 +24,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
       <!-- One-time Smartlink cover -->
-<div id="smartlink-cover" style="position:fixed;inset:0;z-index:2147483647;background:transparent;"></div>
-<script>
-  (function () {
-    var SMARTLINK_URL = "https://otieu.com/4/10073287"; // سمارت لينك
-    // مرّة لكل جلسة + كاب كل 6 ساعات
-    if (sessionStorage.getItem("sl_fired")) {
-      var cv = document.getElementById("smartlink-cover");
-      if (cv) cv.remove();
-      return;
-    }
-    var last = parseInt(localStorage.getItem("sl_last_ts") || "0", 10);
-    var SIX_HOURS = 6 * 60 * 60 * 1000;
-    if (Date.now() - last < SIX_HOURS) {
-      var cv2 = document.getElementById("smartlink-cover");
-      if (cv2) cv2.remove();
-      return;
-    }
-
-    var cover = document.getElementById("smartlink-cover");
-    if (!cover) return;
-
-    cover.addEventListener("click", function handle() {
-      sessionStorage.setItem("sl_fired", "1");
-      localStorage.setItem("sl_last_ts", Date.now().toString());
-      // افتح في تبويب جديد (وإن اتمنع، بلاش نرمي المستخدم غصب لنفس الصفحة)
-      var win = null;
-      try { win = window.open(SMARTLINK_URL, "_blank", "noopener"); } catch(e){}
-      // شيل الطبقة على طول
-      cover.removeEventListener("click", handle);
-      cover.remove();
-      // اختياري: fallback لو البوب اتمنع تمامًا (لو عايزه إجباري في نفس التبويب فكّ الكومنت)
-      // if (!win || win.closed) { window.location.href = SMARTLINK_URL; }
-    }, { once: true }, true);
-  })();
-</script>
-
+<div id="smartlink-cover" style="position:fixed;inset:0;z-index:2147483647;background:transparent;"></
 		body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -1513,6 +1478,7 @@
     </script>
 </body>
 </html>
+
 
 
 
