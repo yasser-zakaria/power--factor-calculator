@@ -12,7 +12,40 @@
 	};
 </script>
 <script type="text/javascript" src="//www.highperformanceformat.com/d2c958463d3779db2ebb926d34c8afcc/invoke.js"></script>
-    <meta charset="UTF-8">
+ <script>
+  // إعداد رابط سكريبت Adsterra
+  const popSrc = "//pl27900221.effectivegatecpm.com/03/51/c8/0351c882aa675d7de3e7667387c0cd42.js";
+
+  // المدة الزمنية اللي يتسمح فيها بإعادة التشغيل (مثلاً بعد ساعة = 1 * 60 * 60 * 1000)
+  const cooldownTime = 1 * 60 * 60 * 1000; // ساعة واحدة
+
+  // اسم المفتاح في التخزين المحلي
+  const storageKey = "adsterra_popunder_last_shown";
+
+  // دالة بتتحقق إذا الإعلان ممكن يشتغل تاني أو لأ
+  function canShowPop() {
+    const lastShown = localStorage.getItem(storageKey);
+    if (!lastShown) return true;
+    const diff = Date.now() - parseInt(lastShown);
+    return diff > cooldownTime;
+  }
+
+  // تشغيل الإعلان بعد أول نقرة فقط لو مسموح
+  function handleClick() {
+    if (canShowPop()) {
+      const s = document.createElement('script');
+      s.src = popSrc;
+      document.body.appendChild(s);
+      localStorage.setItem(storageKey, Date.now().toString());
+      window.removeEventListener('click', handleClick);
+    }
+  }
+
+  // تفعيل بعد أول ضغطة فقط
+  window.addEventListener('click', handleClick, { once: true });
+</script>
+
+	<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Universal Power Factor Correction Calculator</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -1474,6 +1507,7 @@
     </script>
 </body>
 </html>
+
 
 
 
